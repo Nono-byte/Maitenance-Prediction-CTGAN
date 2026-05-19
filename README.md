@@ -62,23 +62,6 @@ Inter-sensor correlation matrices are computed separately for real and synthetic
 
 ---
 
-## Repository Structure
-
-```mermaid
-graph LR
-    A[predictive-maintenance-ctgan] --> B[notebooks]
-    A --> C[figures]
-    A --> D[README.md]
-    B --> B1[predictive_maintenance_ctgan.ipynb]
-    C --> C1[fig_eda.png]
-    C --> C2[fig_training_loss.png]
-    C --> C3[fig_real_vs_synthetic.png]
-    C --> C4[fig_correlation.png]
-    C --> C5[fig_comparison.png]
-```
-
----
-
 ## How to Run
 
 ```bash
@@ -126,9 +109,8 @@ Random Failure has no sensor signal by definition. No amount of synthetic data o
 
 ## Author
 
-**N_Israel**
-Freelance Data Scientist | Predictive Maintenance · Credit Risk · Synthetic Data
-
+**Nonkululeko Ntuli**
+Freelance Data Scientist
 [LinkedIn](https://linkedin.com/in/yourprofile) · [GitHub](https://github.com/yourusername)
 
 ---
