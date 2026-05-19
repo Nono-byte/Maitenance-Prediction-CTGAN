@@ -99,11 +99,6 @@ JSD and correlation checks validate that synthetic distributions match real dist
 
 Random Failure has no sensor signal by definition. No amount of synthetic data or modelling sophistication will predict it reliably. A model that returns low confidence on Random Failure is behaving correctly, not failing. This is an important distinction when presenting results to stakeholders.
 
----
-
-## Related Projects
-
-[Credit Risk Scorecard](https://github.com/yourusername/credit-risk-scorecard) — End-to-end credit scoring pipeline with FICO-style scorecard and Power BI outputs.
 
 ---
 
