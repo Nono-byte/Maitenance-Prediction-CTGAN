@@ -111,7 +111,6 @@ Random Failure has no sensor signal by definition. No amount of synthetic data o
 
 **Nonkululeko Ntuli**
 Freelance Data Scientist
-[LinkedIn](https://linkedin.com/in/yourprofile) · [GitHub](https://github.com/yourusername)
 
 ---
 
