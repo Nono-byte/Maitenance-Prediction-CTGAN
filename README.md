@@ -26,9 +26,9 @@ The problem is not the model. The problem is that the model cannot learn to pred
 
 The baseline Gradient Boosting classifier, trained on raw imbalanced data, achieved a Macro F1 of 0.1649. Every single minority failure class scored F1 = 0.00. The model predicted "No Failure" for everything.
 
-After augmenting the training set with 2,796 CTGAN-generated failure records, the same classifier improved to a Macro F1 of 0.2319 — a lift of 40.7%. Macro Recall improved from 16.65% to 24.91%. Failure classes that were previously invisible to the model became detectable for the first time.
+After augmenting the training set with 2,796 CTGAN-generated failure records, the same classifier's Macro F1 moved to 0.1643 — a negligible, slightly negative change. Macro Recall moved from 16.65% to 16.55%. No previously-invisible failure class became detectable. For a 100-machine fleet, this makes the incremental annual value of CTGAN augmentation approximately **-$13,800** — augmentation did not pay for itself in this run.
 
-For a 100-machine fleet, this recall improvement translates to 24.78 additional failures caught per year. At $45,000 savings per catch, the incremental annual value of CTGAN augmentation is approximately $1,115,100.
+This is a null result, and the notebook's own validation step explains why: mean Jensen-Shannon Divergence between real and synthetic feature distributions is 0.377, well into the "poor" range (> 0.20) defined in the Synthetic Data Quality Validation section below. Inter-sensor correlation is preserved well (0.027 mean absolute difference, comfortably under the 0.05 target), but the per-feature marginal distributions are not — and a classifier gains little from more examples of a distribution that doesn't resemble the real one. The most likely architectural cause is that the generator's output layer is `tanh`-bounded to [-1, 1] in standardized feature space, while real (and GMM-sampled) data in that same space routinely exceeds ±1; blending a bounded GAN sample with an unbounded GMM sample compresses the combined distribution's tails below where the real data actually sits. Loosening that bound (e.g. a linear output layer, or rescaling before the blend) is the most promising next step toward a genuine lift — see Limitations.
 
 ---
 
@@ -65,13 +65,13 @@ Inter-sensor correlation matrices are computed separately for real and synthetic
 ## How to Run
 
 ```bash
-git clone https://github.com/yourusername/predictive-maintenance-ctgan.git
-cd predictive-maintenance-ctgan
-pip install pandas numpy scikit-learn scipy matplotlib
-jupyter notebook notebooks/predictive_maintenance_ctgan.ipynb
+git clone https://github.com/Nono-byte/Maitenance-Prediction-CTGAN.git
+cd Maitenance-Prediction-CTGAN
+pip install -r requirements.txt
+jupyter notebook predictive_maintenance_ctgan.ipynb
 ```
 
-The dataset is generated programmatically inside the notebook. No external data file is required.
+The dataset is generated programmatically inside the notebook — no external data file is required. All figures are also generated inline by the notebook itself (saved alongside it as `fig_*.png`), so no separate script needs to be run first.
 
 ---
 
@@ -91,9 +91,11 @@ The baseline and augmented models use identical hyperparameters and random seeds
 
 Minority class test set sizes are 3–14 samples. Per-class F1 carries high variance at this scale. A minimum of 50–100 real failure examples per class are needed for reliable test-set metrics in a production deployment.
 
-Finite-difference gradients are slow and approximate. A production version of this generator would use PyTorch or JAX with automatic differentiation for faster, more accurate training.
+Finite-difference gradients are slow and approximate — each training step estimates gradients for a random subset of weights in every layer via central differences, rather than a full analytic backward pass. A production version of this generator would use PyTorch or JAX with automatic differentiation for faster, more accurate training.
 
 The 70/30 GMM/GAN blend ratio was set manually through experimentation. It could be treated as a hyperparameter and optimised via cross-validation on a validation set held out from the real failure data.
+
+The generator's `tanh` output layer bounds every sample to [-1, 1] in standardized feature space, which is narrower than the range real (and GMM-sampled) data actually occupies. This is the leading suspect for the poor JSD scores reported in Results, and the first thing to fix before expecting augmentation to move the classifier's metrics.
 
 JSD and correlation checks validate that synthetic distributions match real distributions. They do not validate that synthetic data generalises to truly unseen failures collected after training. Temporal holdout data — failures that occurred after the training period — is the only gold standard for that test.
 
